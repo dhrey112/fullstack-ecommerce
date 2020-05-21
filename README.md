@@ -1,5 +1,7 @@
 # SuperClean Ecommerce platform
 
+![](https://raw.githubusercontent.com/dattasiddhartha/fullstack-ecommerce/master/static/images/screenshot.PNG?token=AKO4KFFGUCW6FCC3WFR2NRK6YZKVU)
+
 ### Setup instructions:
 1. Change directory into folder with main.py
 2. Install dependencies on python3 with
