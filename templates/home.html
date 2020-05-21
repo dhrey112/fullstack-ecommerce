@@ -1,0 +1,287 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title>CleanShop's Masks for All</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">-->
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+	<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+
+	<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<basefont font-family="Times New Roman">
+	<link rel="stylesheet" href={{ url_for('static', filename='css/home.css') }} />
+	<link rel="stylesheet" href={{ url_for('static', filename='css/topStyle.css') }} />
+	<link rel="stylesheet" href={{ url_for('static', filename='css/searchbar.css') }} />
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<style>
+		.mySlides {
+			display: none;
+		}
+	</style>
+
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+	<style>
+        .viewProdButton {
+            background-color: #B1A296;
+            border-radius: 36px;
+            border: 1px solid #ffffff;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-family: Trebuchet MS;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 18px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #283966;
+            margin: auto;
+            display: block;
+        }
+
+			.viewProdButton:hover {
+				background-color: #EEE2DC;
+			}
+
+			.viewProdButton:active {
+				position: relative;
+				top: 1px;
+			}
+	</style>
+
+</head>
+<body>
+
+	<!-- TopBar-->
+	<div id="title">
+
+		<div id="logo">
+			<a class="link" href="/">
+				<img src={{url_for('static', filename='images/logo.png')}} width="45px" />
+			</a>
+			<a class="link" href="/" style="color:white;">
+				<b> Home </b>
+			</a>
+
+		</div>
+
+		{% if not loggedIn %}
+		<div id="signInButton">
+			<input type="submit" class="signInButton" value="Sign In" onclick="location.href='/loginForm';"></input>
+		</div>
+		{% elif not loggedIn_employee %}
+		<div class="options">
+			<button class="optionsbtn">Hello, <br>{{firstName}}</button>
+			<div class="options-content">
+				<a href="/order">Your orders</a>
+				<a href="/profile">Your profile</a>
+				<hr>
+				<a href="/logout">Sign Out</a>
+			</div>
+		</div>
+		{% else %}
+		<div class="options">
+			<button class="optionsbtn">Hello, <br>{{firstName}}</button>
+			<div class="options-content">
+				<a href="/inventory">Inventory management</a>
+				<a href="/managerdashboard">Manager dashboard</a>
+				<a href="/orders">Order management</a>
+				<hr>
+				<a href="/logout">Sign Out</a>
+			</div>
+		</div>
+		{% endif %}
+		<div id="kart">
+			<a class="link" href="/cart">
+				<img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+				<input type="submit" class="kart" value="CART" onclick="location.href='/cart';"></input>
+			</a>
+		</div>
+
+		<div class="dropdown">
+			<button class="dropbtn">Category of Product</button>
+			<div class="dropdown-content">
+				{% for categ in categories %}
+				<a href="/?searchQuery={{categ}}">{{categ}}</a>
+				{% endfor %}
+			</div>
+		</div>
+
+		<form class="search" style="float: left ;margin:auto; max-height:30px;">
+			<div style="width:900px;max-width:auto;">
+				<input type="text" placeholder="Search for product" name="searchQuery">
+				<button type="submit" style="background-color: #557A95;" value="Search">
+					<i class="fa fa-search"></i>
+				</button>
+			</div>
+
+		</form>
+
+		<div style="float: right; margin:auto;">
+			<div>
+
+				<div style="float: right; max-width: auto; width:20px;">
+
+					<ul class="pagination" style="float: right; max-width: auto; margin-bottom: auto; margin-top: -5px; margin-right: 175px; margin-left: auto;">
+						<li class="page-item"><a class="page-link" href="" onclick="previouspage()" )>Previous</a></li>
+						<li class="page-item"><a class="page-link" href="" onclick="nextpage()">Next</a></li>
+					</ul>
+				</div>
+
+				<a class="link" href="/" style="color:white;">
+					<b><i class="fa fa-arrow-circle-o-left"></i> Return Home </b>
+				</a>
+
+			</div>
+
+
+
+		</div>
+
+	</div>
+
+	<!-- TopBar-->
+
+
+
+
+	<div class="container">
+
+		<script>
+			function nextpage() {
+				$.post("/postmethod", {
+					javascript_data: 10
+				});
+			}
+		</script>
+		<script>
+			function previouspage() {
+				$.post("/postmethod", {
+					javascript_data: 100
+				});
+			}
+		</script>
+
+	</div>
+
+
+
+	<div class="display">
+		<div>
+			<h3 style="max-width: 200px; margin-right: auto; margin-left: auto;">Product listings</h3>
+			{% for data in itemData %}
+			<table align="center" style="margin: 10px auto;">
+				<tr id="productImage" align="center" style="margin-left: 10px auto;">
+					{% for row in data %}
+					<td>
+						{% if row[8] == '/' %}
+						<img src="https://www.justbellydance.com/events/images/no-preview.png" width="100" border="1" alt="" />
+						{% else %}
+						<img src={{row[8]}} width="100" border="1" alt="" />
+						{% endif %}
+					</td>
+					{% endfor %}
+				</tr>
+				<tr id="productName">
+					{% for row in data %}
+					<td>
+						<i>{{row[1]}}</i>
+					</td>
+					{% endfor %}
+				</tr>
+				<tr id="productPrice">
+					{% for row in data %}
+					<td>
+						{% if (1-row[4])*row[2] < row[2] %}
+						HK$ {{'%0.1f'| format((1-row[4])*row[2]|float)}}
+						{% else %}
+						HK$ {{'%0.1f'| format(row[2]|float)}}
+						{% endif %}
+					</td>
+					{% endfor %}
+				</tr>
+				<tr id="productView">
+					{% for row in data %}
+					<td>
+						<input type="submit" class="viewProdButton" value="View product" onclick="location.href='/productDescription?productId={{row[0]}}';" />
+					</td>
+					{% endfor %}
+				</tr>
+				<br>
+				<br>
+			</table>
+			{% endfor %}
+		</div>
+
+		<!--<div id="searchb"></div>-->
+
+	</div>
+
+	<h3 style="max-width: 400px; margin-right: auto; margin-left: auto;margin-bottom: 35px;">Featured promotions</h3>
+	<div class="w3-content w3-display-container" style="width:400px; margin-bottom: 80px;">
+
+		{% for data in promoData %}
+		{% for row in data %}
+		<div class="w3-display-container mySlides">
+			<img src={{row[11]}} style="width:100%">
+			<!--<div class="w3-display-middle w3-large w3-container w3-padding-16 w3-black">-->
+			<div class="w3-display-top w3-large w3-container w3-padding-16 w3-black">
+				<a style="color:#ffffff" href='/productDescription?productId={{row[0]}}'>{{row[1]}}</a>
+			</div>
+		</div>
+		{% endfor %}
+		{% endfor %}
+
+		<button class="w3-button w3-display-left w3-black" onclick="plusDivs(-1)">&#10094;</button>
+		<button class="w3-button w3-display-right w3-black" onclick="plusDivs(1)">&#10095;</button>
+
+	</div>
+
+	<div>
+
+		<footer style="background-color: #5D5C61;display: inline-block;width: 100%;height: auto; color:#ffffff">
+
+			<!-- Copyright -->
+			<div class="footer-copyright text-center py-3">
+				© 2020 Copyright
+				<a href="/"> ISOM3260 Group 107 COVID19 Supplies Support Site</a>
+			</div>
+			<!-- Copyright -->
+
+		</footer>
+
+	</div>
+
+	<script>
+		var slideIndex = 1;
+		showDivs(slideIndex);
+
+		function plusDivs(n) {
+			showDivs(slideIndex += n);
+		}
+
+		function showDivs(n) {
+			var i;
+			var x = document.getElementsByClassName("mySlides");
+			if (n > x.length) { slideIndex = 1 }
+			if (n < 1) { slideIndex = x.length }
+			for (i = 0; i < x.length; i++) {
+				x[i].style.display = "none";
+			}
+			x[slideIndex - 1].style.display = "block";
+		}
+	</script>
+
+
+</body>
+
+</html>
+

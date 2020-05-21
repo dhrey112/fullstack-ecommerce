@@ -1,0 +1,94 @@
+<html>
+<head>
+    <title>Sign up</title>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/validateForm.js') }}">
+    </script>
+
+    <style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted black;
+        }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 300px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 10px 10px;
+                position: absolute;
+                z-index: 1;
+                bottom: 95%;
+                left: 50%;
+                margin-left: -60px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+                .tooltip .tooltiptext::after {
+                    content: "";
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    margin-left: -5px;
+                    border-width: 5px;
+                    border-style: solid;
+                    border-color: #555 transparent transparent transparent;
+                }
+
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+            }
+    </style>
+
+</head>
+<body>
+    <p> {{error}} </p>
+    <form action="/employeeRegister" method="POST" onsubmit="return validate()">
+
+        <div>
+            <p>Username: <input type="usrname" name="usrname"></p>
+        </div>
+
+        <div>
+            <p>Email: <input type="email" name="email"></p>
+        </div>
+
+        <div>
+            <P>Password: <input type="password" name="password" id="password" required></P>
+        </div>
+
+        <div>
+            <p>Confirm Password: <input type="password" name="cpassword" id="cpassword"></p>
+        </div>
+
+        <div>
+            <p>First name: <input type="text" name="fname" pattern="[A-Za-z]{1,20}" title="Only letter format, 1-20 letters"></p>
+        </div>
+
+        <div>
+            <p>Last name: <input type="text" name="lname" pattern="[A-Za-z]{1,20}" title="Only letter format, 1-20 letters"></p>
+        </div>
+
+        <div class="tooltip">
+            <p>Phone Number: <input type="Number" name="phoneNum"></p>
+            <span class="tooltiptext">Numbers only</span>
+        </div>
+
+        <div class="tooltip">
+            <p>Position: <input type="position" name="position"></p>
+            <span class="tooltiptext">For special permissions, if you are a manager, please include the "manager" title in your role.</span>
+        </div>
+
+        <div>
+            <p><input type="submit" value="Register"></p>
+        </div>
+
+        <a href="/employeeLogin">Login here</a>
+    </form>
+</body>
+</html>

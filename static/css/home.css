@@ -1,0 +1,33 @@
+
+#itemImage {
+    height: 200px;
+    width: 150px;
+}
+
+.display {
+    margin-top: 40px;
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-bottom: 40px;
+}
+
+table {
+    border-spacing: 20px;
+}
+
+#productName {
+    text-align: center;
+    font-weight: bold;
+    font-family: Arial;
+    font-size: 13px;
+}
+
+#productPrice {
+    text-align: center;
+    font-family: Arial;
+}
+
+.displayCategory ul li {
+    font-size: 20px;
+    font-family: Arial;
+}

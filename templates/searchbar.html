@@ -1,0 +1,66 @@
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <basefont font-family="Times New Roman">
+    <link rel="stylesheet" href={{ url_for('static', filename='css/home.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/topStyle.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/searchbar.css') }} />
+
+
+</head>
+<body>
+
+    <div id="logo">
+        <a class="link" href="/">
+            <img src={{url_for('static', filename='images/logo.png')}} width="70px" />
+        </a>
+        <b><i><small>CleanShop </small></i></b>
+    </div>
+
+    <!-- Ver1 search bar -->
+    <!--<form>
+    <input id="searchBox" type="text" name="searchQuery">
+    <input id="searchButton" type="submit" value="Search">
+    </form>-->
+    {% if not loggedIn %}
+    <div id="signInButton">
+        <a class="link" href="/loginForm">Sign In</a>
+    </div>
+    {% else %}
+    <div class="dropdown">
+        <button class="dropbtn">Hello, <br>{{firstName}}</button>
+        <div class="dropdown-content">
+            <a href="/account/orders">Your orders</a>
+            <a href="/account/profile">Your profile</a>
+            <hr>
+            <a href="/logout">Sign Out</a>
+        </div>
+    </div>
+    {% endif %}
+    <div id="kart">
+        <a class="link" href="/cart">
+            <img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+            CART {{noOfItems}}
+        </a>
+    </div>
+
+    <div class="dropdown">
+        <button class="dropbtn">Category of Product</button>
+        <div class="dropdown-content">
+            {% for categ in categories %}
+            <a href="/?searchQuery={{categ}}">{{categ}}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Ver2 search bar -->
+    <form class="search" style="margin:auto;max-width:1000px">
+        <input type="text" placeholder="Search for product" name="searchQuery">
+        <button type="submit" value="Search">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+#logo {
+
+	width: 40px;
+	margin-left: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-right: 20px;
+	float: left;
+}
+
+#title {
+	background-color: #5D5C61;
+	display: inline-block;
+	width: 100%;
+	height: auto; /*80px*/
+}
+
+#searchBox {
+	height: 20px;
+	width: 800px;
+	margin-left: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 20px;
+	float: left;
+	font-size: 1.5em;
+}
+
+#searchButton {
+	height: 25px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 20px;
+	float: left;
+}
+
+.dropbtn {
+	background-color: #557A95;
+	color: white;
+	padding: 12px;
+	font-size: 15px;
+	border: none;
+	cursor: pointer;
+	font-family: Arial;
+	margin-top: 20px;
+	width: auto;
+	height= auto;
+}
+
+.dropdown {
+	position: relative;
+	float: left;
+}
+
+.dropdown-content  {
+	display: none;
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: 160px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dropdown-content a {
+	font-size: 14px;
+	color: black;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+	font-family: Arial;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+	display: block;
+}
+
+.dropdown:hover .dropbtn {
+	background-color: #7395AE;
+}
+
+#signInButton {
+	color: yellow;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
+	float: left;
+}
+#kart {
+	color: white;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
+	float: left;
+}
+
+#cartIcon {
+	height: 35px;
+	width: 35px;
+}
+
+.optionsbtn {
+	background-color: #557A95;
+	color: white;
+	padding: 12px;
+	font-size: 15px;
+	border: none;
+	cursor: pointer;
+	font-family: Arial;
+	margin-top: 5px;
+	width: auto;
+	height = auto;
+}
+
+.options {
+	position: relative;
+	float: left;
+}
+
+.options-content {
+	display: none;
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: auto;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+	.options-content a {
+		font-size: 14px;
+		color: black;
+		padding: 12px 16px;
+		text-decoration: none;
+		display: block;
+		font-family: Arial;
+	}
+
+		.options-content a:hover {
+			background-color: #f1f1f1
+		}
+
+.options:hover .options-content {
+	display: block;
+}
+
+.options:hover .optionsbtn {
+	background-color: #7395AE;
+}

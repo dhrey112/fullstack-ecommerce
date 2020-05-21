@@ -1,0 +1,253 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Shopping Cart</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <basefont font-family="Times New Roman">
+    <link rel="stylesheet" href={{ url_for('static', filename='css/home.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/topStyle.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/searchbar.css') }} />
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css'>
+    <link rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="./static/css/table.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+
+    <link rel="stylesheet" href="./static/css/shoppingcart.css">
+
+
+</head>
+<body>
+
+    <!-- TopBar-->
+    <div id="title">
+
+        <div id="logo">
+            <a class="link" href="/">
+                <img src={{url_for('static', filename='images/logo.png')}} width="45px" />
+            </a>
+            <a class="link" href="/" style="color:white;">
+                <b> Home </b>
+            </a>
+
+        </div>
+
+        {% if not loggedIn %}
+        <div id="signInButton">
+            <input type="submit" class="signInButton" value="Sign In" onclick="location.href='/loginForm';"></input>
+        </div>
+        {% elif not loggedIn_employee %}
+        <div class="options">
+            <button class="optionsbtn">Hello, <br>{{firstName}}</button>
+            <div class="options-content">
+                <a href="/order">Your orders</a>
+                <a href="/profile">Your profile</a>
+                <hr>
+                <a href="/logout">Sign Out</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="options">
+            <button class="optionsbtn">Hello, <br>{{firstName}}</button>
+            <div class="options-content">
+                <a href="/inventory">Inventory management</a>
+                <a href="/managerdashboard">Manager dashboard</a>
+                <a href="/orders">Order management</a>
+                <hr>
+                <a href="/logout">Sign Out</a>
+            </div>
+        </div>
+        {% endif %}
+        <div id="kart">
+            <a class="link" href="/cart">
+                <img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+                <input type="submit" class="kart" value="CART" onclick="location.href='/cart';"></input>
+            </a>
+        </div>
+
+        <div style="float: right; margin:auto; margin-top:35px;">
+            <div>
+                <a class="link" href="/" style="color:white;">
+                    <b><i class="fa fa-arrow-circle-o-left"></i> Return Home </b>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TopBar-->
+
+    {% block content %}
+    <div class="container">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ message }}
+        </div>
+        {% endfor %}
+
+        {% block page_content %}{% endblock %}
+    </div>
+    {% endblock %}
+
+    <form class="search2" style="margin:auto;max-width:1000px">
+        <div name="cartShp" class="container">
+
+            <div id="cart" class="shopping-cart" style="height:auto;">
+                <!-- Title -->
+                <div name="test" class="title-cart">
+                    Shopping Cart
+                </div>
+
+                <!-- Product #n -->
+                {% for data in CartData %}
+                <div name="items" class="item">
+
+                    <div class="description">
+                        <span>{{data[2][0:50]}}</span>
+                    </div>
+
+                    <div class="quantity">
+                        <button class="plus-btn" type="button" name="button">
+                            <img src={{url_for('static', filename='images/plus.svg')}} />
+
+                        </button>
+
+                        <input type="text" name="{{data[3]}}" value="{{data[0]}}">
+
+                        <button class="minus-btn" type="button" name="button">
+                            <img src={{url_for('static', filename='images/minus.svg')}} />
+                        </button>
+
+                    </div>
+
+
+                    <div name="total-price" class="total-price" value="{{data[1]}}">HK${{data[1]}}</div>
+
+                    <button class="delete-btn" type="button" name="button" style="margin-top:20px;margin-left:40px;">
+
+                </div>
+                {% endfor %}
+
+
+                <button class="btn btn-warning" style="width:auto;">
+                    Confirm Order
+                </button>
+
+                {% if show_payment is sameas true %}
+
+                <div name="total" class="total" value="{{totalP}}">Your total: HK${{totalP}}</div>
+
+                <input type="text" onfocus="this.value=''" value="Enter your Credit Card number here" name="CCNum" id="CCNum" style="max-width:auto; width:750px;" />
+
+                <button id="confirm-btn" class="btn btn-success" value="Search" style="max-width:auto; width:750px;">
+                    Confirm Payment
+                </button>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+    </form>
+
+
+
+
+
+    <script type="text/javascript">
+        $('.minus-btn').on('click', function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            var $input = $this.closest('div').find('input');
+            var value = parseInt($input.val());
+
+            if (value > 1) {
+                value = value - 1;
+            } else {
+                value = 0;
+            }
+
+            $input.val(value);
+
+        });
+
+        $('.plus-btn').on('click', function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            var $input = $this.closest('div').find('input');
+            var value = parseInt($input.val());
+
+            //if (value < 100) {
+            //    value = value + 1;
+            //} else {
+            //    value = 100;
+            //}
+            value = value + 1;
+            $input.val(value);
+        });
+
+        //$('.like-btn').on('click', function () {
+        //    $(this).toggleClass('is-active');
+        //});
+
+        $('.delete-btn').on('click', function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            var $input = $this.closest('div').find('input');
+            //var $input = $this.getElementsByName('name');
+            var value = parseInt($input.val());
+
+
+
+            $input.val(0);
+        });
+
+    </script>
+    <script src="./static/js/table.js"></script>
+
+    <!--<script type="text/javascript">
+        function findTotal() {
+            var arr = document.getElementsByName('price');
+            var tot = 0;
+            for (var i = 0; i < arr.length; i++) {
+                if (parseInt(arr[i].value))
+                    tot += parseInt(arr[i].value);
+            }
+            document.getElementById('total').value = tot;
+        }
+
+    </script>-->
+
+    <script>
+
+        function unhideLog() {
+            document.getElementById('login').style.display = "block";
+        }
+
+        function unhideReg() {
+            document.getElementById('CCNum').style.display = "block";
+            document.getElementById('confirm-btn').style.display = "block";
+        }
+
+    </script>
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,257 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>CleanShop's Masks for All</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <basefont font-family="Times New Roman">
+    <link rel="stylesheet" href={{ url_for('static', filename='css/home.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/topStyle.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/searchbar.css') }} />
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css'>
+    <link rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="./static/css/table.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+
+</head>
+<body>
+
+    <!-- TopBar-->
+    <div id="title">
+
+        <div id="logo">
+            <a class="link" href="/">
+                <img src={{url_for('static', filename='images/logo.png')}} width="45px" />
+            </a>
+            <a class="link" href="/" style="color:white;">
+                <b> Home </b>
+            </a>
+
+        </div>
+
+        {% if not loggedIn %}
+        <div id="signInButton">
+            <input type="submit" class="signInButton" value="Sign In" onclick="location.href='/loginForm';"></input>
+        </div>
+        {% elif not loggedIn_employee %}
+        <div class="options">
+            <button class="optionsbtn">Hello, <br>{{firstName}}</button>
+            <div class="options-content">
+                <a href="/order">Your orders</a>
+                <a href="/profile">Your profile</a>
+                <hr>
+                <a href="/logout">Sign Out</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="options">
+            <button class="optionsbtn">Hello, <br>{{firstName}}</button>
+            <div class="options-content">
+                <a href="/inventory">Inventory management</a>
+                <a href="/managerdashboard">Manager dashboard</a>
+                <a href="/orders">Order management</a>
+                <hr>
+                <a href="/logout">Sign Out</a>
+            </div>
+        </div>
+        {% endif %}
+        <div id="kart">
+            <a class="link" href="/cart">
+                <img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+                <input type="submit" class="kart" value="CART" onclick="location.href='/cart';"></input>
+            </a>
+        </div>
+
+        <div style="float: right; margin:auto; margin-top:35px;">
+            <div>
+                <a class="link" href="/" style="color:white;">
+                    <b><i class="fa fa-arrow-circle-o-left"></i> Return Home </b>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TopBar-->
+
+    <div class="container">
+        <h1>Order Management</h1>
+
+        <form class="searchFilter" style="margin:auto;max-width:1000px">
+            <input type="text" placeholder="Filter for order ID" name="filter_order">
+            <input type="text" placeholder="Filter for customer ID" name="filter_customer">
+            <button type="submit" value="Search">
+                <i class="fa fa-search">Filter</i>
+            </button>
+        </form>
+
+        <button id="export-btn" type="submit" class="btn btn-primary">Store updates</button>
+        <button id="update-btn" type="submit" class="btn btn-primary">Refresh page</button>
+
+
+        <div id="table" class="table-editable" style="overflow-x:auto;overflow-y: auto;height: 50vh;">
+
+            <!--Staff cannot arbitrarily create a new order; they would have to manually create an order, then reroute the customerID away from themselves-->
+
+            <table class="table">
+                <tr>
+
+                    <th>Orders_ID</th>
+                    <th>Customer_ID_FK</th>
+                    <th>Employees_ID_FK</th>
+                    <th>Orders_Status</th>
+                    <th>Orders_Price</th>
+                    <th>Orders_OrderTimeStamp</th>
+                    <th>Orders_DeliveryFee</th>
+                    <th>Orders_RequiredDeliveryTimeStamp</th>
+
+                </tr>
+
+                {% for i in range(orderData|count): %}
+                {% for j in  range(orderData[i]|count): %}
+
+                {% set max_col = orderData[i]|count %}
+                {% set max_col_check = orderData[i-1]|count %}
+
+                <!--This check is needed because last row may not have all the columns-->
+                {% if max_col_check > max_col %}
+                {% set max_col =max_col_check %}
+                {% endif %}
+
+
+                <!--The algorithm to count the index for a matrix as iterated from left-to-right, then up-to-down:
+                index = row + row*max_col + col-->
+
+                <tr>
+                    <td contenteditable="false">{{orderData[i][j][0]}}</td>
+                    <td contenteditable="false">{{orderData[i][j][6]}}</td>
+                    <td contenteditable="false">{{orderData[i][j][7]}}</td>
+                    <td class="select" contenteditable="false">
+
+                        <p id="return_{{i+i*max_col+j}}" name="return_{{i+i*max_col+j}}" value="{{orderData[i][j][5]}}" style="display: none;">{{orderData[i][j][5]}}</p>
+                        <select id="Selection_{{i+i*max_col+j}}" name="Selection_{{i+i*max_col+j}}" onchange="CellFunction({{i+i*max_col+j}})">
+
+                            {% if orderData[i][j][5] == "unpaid" %}
+                            <option value="unpaid">unpaid</option>
+                            <option value="preparation">preparation</option>
+                            <option value="delivery">delivery</option>
+                            <option value="completed">completed</option>
+                            {% endif %}
+
+                            {% if orderData[i][j][5] == "preparation" %}
+                            <option value="preparation">preparation</option>
+                            <option value="delivery">delivery</option>
+                            <option value="completed">completed</option>
+                            <option value="unpaid">unpaid</option>
+                            {% endif %}
+
+                            {% if orderData[i][j][5] == "delivery" %}
+                            <option value="delivery">delivery</option>
+                            <option value="unpaid">unpaid</option>
+                            <option value="preparation">preparation</option>
+                            <option value="completed">completed</option>
+                            {% endif %}
+
+                            {% if orderData[i][j][5] == "completed" %}
+                            <option value="completed">completed</option>
+                            <option value="unpaid">unpaid</option>
+                            <option value="preparation">preparation</option>
+                            <option value="delivery">delivery</option>
+                            {% endif %}
+
+                        </select>
+                    </td>
+                    <td contenteditable="false">{{orderData[i][j][1]}}</td>
+                    <td contenteditable="false">{{orderData[i][j][2]}}</td>
+                    <td contenteditable="false">{{orderData[i][j][3]}}</td>
+                    <td contenteditable="false">{{orderData[i][j][4]}}</td>
+
+                </tr>
+                {% endfor %}
+                {% endfor %}
+
+            </table>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <h1>Order details</h1>
+
+        <p>Select a specific order id to see its order details.</p>
+
+        <!--sort by date, this is order history-->
+        <form class="teamSelection">
+            <select class="teamForm" id="teamDropdownSelector" type="text" name="status" placeholder="Select Status">
+                <option disabled selected>Select Status</option>
+                {% for item in combobox_list %}
+                <option id="{{item}}" value="{{item}}">{{item}}</option>
+                {% endfor %}
+            </select>
+            <input class="btn" type="submit" value="submit">
+        </form>
+
+        <div id="table" class="table-editable" style="overflow-x:auto;overflow-y: auto;height: 50vh;">
+
+            <!--Staff cannot arbitrarily create a new order; they would have to manually create an order, then reroute the customerID away from themselves-->
+            <p>See what orders have what order items, then make call to supplier to purchase. If you need to reorder quantity, go to Inventory Management, call supplier and set the new quantity ordered.</p>
+
+            <table class="table">
+                <tr>
+
+                    <th>Orders_ID</th>
+                    <th>Order_Items_ID</th>
+                    <th>Products_ID</th>
+                    <th>Order_Items_Product_Quantity</th>
+                    <th>Order_Items_Unit_Price</th>
+                    <th>Order_Items_Time_Stamp</th>
+
+                </tr>
+
+                {% for data in orderItemsData %}
+                {% for row in data %}
+                <tr>
+                    <td contenteditable="false">{{row[7]}}</td>
+                    <td contenteditable="false">{{row[0]}}</td>
+                    <td contenteditable="false">{{row[8]}}</td>
+                    <td contenteditable="false">{{row[1]}}</td>
+                    <td contenteditable="false">{{row[2]}}</td>
+                    <td contenteditable="false">{{row[5]}}</td>
+
+                </tr>
+                {% endfor %}
+                {% endfor %}
+
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function CellFunction(num) {
+            var elements = document.getElementById('Selection_' + num).value;
+            document.getElementById('return_' + num).innerHTML = elements;
+
+        }
+    </script>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
+    <script src='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore.js'></script>
+    <script src="./static/js/table.js"></script>
+
+</body>
+</html>

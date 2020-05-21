@@ -1,0 +1,465 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>CleanShop's Masks for All</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <basefont font-family="Times New Roman">
+    <link rel="stylesheet" href={{ url_for('static', filename='css/home.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/topStyle.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='css/searchbar.css') }} />
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css'>
+    <link rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="./static/css/table.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+
+</head>
+<body>
+    <!-- TopBar-->
+    <div id="title">
+
+        <div id="logo">
+            <a class="link" href="/">
+                <img src={{url_for('static', filename='images/logo.png')}} width="45px" />
+            </a>
+            <a class="link" href="/" style="color:white;">
+                <b> Home </b>
+            </a>
+
+        </div>
+
+        {% if not loggedIn %}
+        <div id="signInButton">
+            <input type="submit" class="signInButton" value="Sign In" onclick="location.href='/loginForm';"></input>
+        </div>
+        {% elif not loggedIn_employee %}
+        <div class="options">
+            <button class="optionsbtn">Hello, <br>{{firstName}}</button>
+            <div class="options-content">
+                <a href="/order">Your orders</a>
+                <a href="/profile">Your profile</a>
+                <hr>
+                <a href="/logout">Sign Out</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="options">
+            <button class="optionsbtn">Hello, <br>{{firstName}}</button>
+            <div class="options-content">
+                <a href="/inventory">Inventory management</a>
+                <a href="/managerdashboard">Manager dashboard</a>
+                <a href="/orders">Order management</a>
+                <hr>
+                <a href="/logout">Sign Out</a>
+            </div>
+        </div>
+        {% endif %}
+        <div id="kart">
+            <a class="link" href="/cart">
+                <img src={{url_for('static', filename='images/shoppingCart.png')}} id="cartIcon" />
+                <input type="submit" class="kart" value="CART" onclick="location.href='/cart';"></input>
+            </a>
+        </div>
+
+        <div style="float: right; margin:auto; margin-top:35px;">
+            <div>
+                <a class="link" href="/" style="color:white;">
+                    <b><i class="fa fa-arrow-circle-o-left"></i> Return Home </b>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TopBar-->
+
+    <h1>
+        Manager Dashboard <h1>
+
+            <h5>
+                Here you can monitor the progress of how we are doing. Good luck! To update information, refresh page! :D <h5>
+
+                    <div class="container">
+                        <h3>Daily Sales</h3>
+                        <h6>Note: If date selected has no record, nothing will appear</h6>
+                        <form>
+                            <label>Select day: </label>
+                            <input type="date" name="filter_dailysales" /><br>
+                            <button type="submit" value="Search">
+                                <i class="fa fa-search">Filter</i>
+                            </button>
+                        </form>
+                        <div class="table-editable">
+                            <table class="table">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Total_sales_$$$</th>
+                                </tr>
+                                {% for data in dailysales %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+
+                        <h3>Monthly Sales</h3>
+                        <h6>Note: If date selected has no record, nothing will appear</h6>
+                        <form>
+                            <label>Select month: </label>
+                            <input type="month" name="filter_monthlysales" /><br>
+                            <button type="submit" value="Search">
+                                <i class="fa fa-search">Filter</i>
+                            </button>
+                        </form>
+                        <div class="table-editable">
+                            <table class="table">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Total_sales_$$$</th>
+                                </tr>
+                                {% for data in monthlysales %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>All sales orders of today</h3>
+                        <h6>This will show you all items ordered today according to their time</h6>
+                        <div class="table-editable" style="overflow-x:auto;">
+                            <table class="table">
+                                <tr>
+                                    <th>Orders_ID</th>
+                                    <th>Orders_Price</th>
+                                    <th>Orders_OrderTimeStamp</th>
+                                    <th>Orders_DeliveryFee</th>
+                                    <th>Orders_RequiredDeliveryTimeStamp</th>
+                                    <th>Orders_Status</th>
+                                    <th>Customer_ID_FK</th>
+                                    <th>Employees_ID_FK</th>
+                                </tr>
+                                {% for data in todayorders %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                    <td contenteditable="false">{{row[2]}}</td>
+                                    <td contenteditable="false">{{row[3]}}</td>
+                                    <td contenteditable="false">{{row[4]}}</td>
+                                    <td contenteditable="false">{{row[5]}}</td>
+                                    <td contenteditable="false">{{row[6]}}</td>
+                                    <td contenteditable="false">{{row[7]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>All sales items of today</h3>
+                        <h6>This will show you all items ordered today according to their time</h6>
+                        <div class="table-editable" style="overflow-x:auto;">
+                            <table class="table">
+                                <tr>
+                                    <th>Orders_ID</th>
+                                    <th>Order_Items_ID</th>
+                                    <th>Products_ID_FK</th>
+                                    <th>Total Price</th>
+                                    <th>Order_Items_Product_Quantity</th>
+                                    <th>Order_Items_Time_Stamp</th>
+                                    <th>Order_Items_Status</th>
+                                </tr>
+                                {% for data in todayorderitems %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                    <td contenteditable="false">{{row[2]}}</td>
+                                    <td contenteditable="false">{{row[3]}}</td>
+                                    <td contenteditable="false">{{row[4]}}</td>
+                                    <td contenteditable="false">{{row[5]}}</td>
+                                    <td contenteditable="false">{{row[6]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>Top 5 products sold</h3>
+                        <h6>This will show you the top 5 products and their total sales</h6>
+                        <div class="table-editable" style="overflow-x:auto;">
+                            <table class="table">
+                                <tr>
+                                    <th>Products</th>
+                                    <th>Products Name</th>
+                                    <th>Product Total Quantity Sales</th>
+                                </tr>
+                                {% for data in fiveproducts %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                    <td contenteditable="false">{{row[2]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>Top 5 customers</h3>
+                        <h6>This will show you the top 5 customers and their total sales</h6>
+                        <div class="table-editable" style="overflow-x:auto;">
+                            <table class="table">
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Customer Username</th>
+                                    <th>Total sales ($)</th>
+                                </tr>
+                                {% for data in fivemembers %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                    <td contenteditable="false">{{row[2]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>Product information</h3>
+                        <h6>Show sales of a particular product, in terms of quantity sold</h6>
+                        <form class="searchFilter" style="margin:auto;max-width:1000px">
+                            <input type="text" placeholder="Filter products by ID" name="filter_product">
+                            <button type="submit" value="Search">
+                                <i class="fa fa-search">Filter</i>
+                            </button>
+                        </form>
+                        <div class="table-editable" style="overflow-x:auto;overflow-y: auto;height: 50vh;">
+                            <table class="table">
+                                <tr>
+                                    <th>Product_ID</th>
+                                    <th>Product_Name</th>
+                                    <th>Quantity_sold</th>
+                                </tr>
+                                {% for data in productinfor %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                    <td contenteditable="false">{{row[2]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>Stock out products</h3>
+                        <h6>This function will help you view all products that need restocking</h6>
+                        <div class="table-editable" style="overflow-x:auto;">
+                            <table class="table">
+                                <tr>
+                                    <th>Product_Name</th>
+                                    <th>Product_ID</th>
+                                    <th>Inventory_stock</th>
+                                </tr>
+                                {% for data in restockinventory %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                    <td contenteditable="false">{{row[2]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+
+                    <div class="container">
+                        <h3>Order Status Count</h3>
+                        <h6>This function will help you find out how many orders are in each status</h6>
+                        <div class="table-editable" style="overflow-x:auto;">
+                            <table class="table">
+                                <tr>
+                                    <th>Order_Status</th>
+                                    <th>Number_of_orders</th>
+                                </tr>
+                                {% for data in orderstatus %}
+                                {% for row in data %}
+                                <tr>
+                                    <td contenteditable="false">{{row[0]}}</td>
+                                    <td contenteditable="false">{{row[1]}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr size="10">
+                    <vr size="10">
+
+                        <div class="container">
+                            <h3>Discounted products</h3>
+                            <h6>This function will help you find which products have a discount</h6>
+                            <div class="table-editable" style="overflow-x:auto;overflow-y: auto;height: 50vh;">
+                                <table class="table">
+                                    <tr>
+                                        <th>Products_Name</th>
+                                        <th>Products_ID</th>
+                                        <th>Products_Discount</th>
+                                        <th>Products_Selling_Price</th>
+                                        <th>Products_Cost_Price</th>
+                                    </tr>
+                                    {% for data in discountview %}
+                                    {% for row in data %}
+                                    <tr>
+                                        <td contenteditable="false">{{row[0]}}</td>
+                                        <td contenteditable="false">{{row[1]}}</td>
+                                        <td contenteditable="false">{{row[2]}}</td>
+                                        <td contenteditable="false">{{row[3]}}</td>
+                                        <td contenteditable="false">{{row[4]}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr size="10">
+                        <vr size="10">
+
+                            <hr size="10">
+                            <vr size="10">
+
+                                <div class="container">
+                                    <h3>View and hide comments</h3>
+                                    <h6>This function will help you view all comments and choose to hide them</h6>
+                                    <h6>If you wish to change the show or hide selection, choose an option from filter box</h6>
+                                    <h6>Special note: It may take up to 45 secs for changes to be reflected across the system.</h6>
+                                    <button id="export-btn" type="submit" class="btn btn-primary">Store updates</button>
+                                    <div id="table" class="table-editable" style="overflow-x:auto;overflow-y: auto;height: 50vh;">
+                                        <table class="table">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Posted</th>
+                                                <th>show or hide</th>
+                                                <th>Comment</th>
+                                                <th>Customer ID</th>
+                                                <th>Products ID</th>
+                                            </tr>
+
+                                            {% for i in range(comments|count): %}
+                                            {% for j in  range(comments[i]|count): %}
+
+                                            {% set max_col = comments[i]|count %}
+                                            {% set max_col_check = comments[i-1]|count %}
+
+                                            <!--This check is needed because last row may not have all the columns-->
+                                            {% if max_col_check > max_col %}
+                                            {% set max_col =max_col_check %}
+                                            {% endif %}
+
+
+                                            <!--The algorithm to count the index for a matrix as iterated from left-to-right, then up-to-down:
+                                            index = row + row*max_col + col-->
+
+                                            <tr>
+                                                <td contenteditable="false">{{comments[i][j][0]}}</td>
+                                                <td contenteditable="false">{{comments[i][j][1]}}</td>
+                                                <td class="select" contenteditable="false">
+
+                                                    <p id="return_{{i+i*max_col+j}}" name="return_{{i+i*max_col+j}}" value="{{comments[i][j][5]}}" style="display: none;">{{comments[i][j][5]}}</p>
+                                                    <select id="Selection_{{i+i*max_col+j}}" name="Selection_{{i+i*max_col+j}}" onchange="CellFunction({{i+i*max_col+j}})">
+
+                                                        {% if comments[i][j][5] == "show" %}
+                                                        <option value="show">show</option>
+                                                        <option value="hide">hide</option>
+                                                        {% endif %}
+
+                                                        {% if comments[i][j][5] == "hide" %}
+                                                        <option value="hide">hide</option>
+                                                        <option value="show">show</option>
+                                                        {% endif %}
+
+                                                    </select>
+                                                </td>
+                                                <td contenteditable="false">{{comments[i][j][2]}}</td>
+                                                <td contenteditable="false">{{comments[i][j][3]}}</td>
+                                                <td contenteditable="false">{{comments[i][j][4]}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% endfor %}
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <hr size="10">
+                                <vr size="10">
+
+                                    <script>
+
+                                        function CellFunction(num) {
+                                            var elements = document.getElementById('Selection_' + num).value;
+                                            document.getElementById('return_' + num).innerHTML = elements;
+
+                                        }
+                                    </script>
+
+                                    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+                                    <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
+                                    <script src='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js'></script>
+                                    <script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore.js'></script>
+                                    <script src="./static/js/table.js"></script>
+
+</body>
+    </html>
+
+ 

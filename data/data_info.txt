@@ -1,0 +1,7 @@
+Data was scraped from Amazon.com, specifically from 
+
+https://www.amazon.com/s?k=hand+sanitizer&rh=n%3A3760901%2Cn%3A2265897011&dc&qid=1587624976&rnid=2941120011&ref=sr_nr_n_2
+
+and
+
+https://www.amazon.com/s?k=masks&ref=nb_sb_noss_2
