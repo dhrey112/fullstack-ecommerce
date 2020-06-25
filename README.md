@@ -1,6 +1,6 @@
-# SuperClean Ecommerce platform
+## SuperClean Ecommerce Platform
 
-A fullstack ecommerce web application with JavaScript frontend, interfacing with flask backend and data stored on an Oracle SQL database. 
+[[video]](https://www.youtube.com/watch?v=TQfygqFXgVA) A fullstack ecommerce web application with JavaScript frontend, interfacing with flask backend and data stored on an Oracle SQL database. 
 
 <img src="./static/images/screenshot.PNG" height="400px"></img>
 
@@ -48,3 +48,14 @@ ngrok http 8000
 <img src="./static/images/fun_req1.png" height="400px"></img>
 <img src="./static/images/fun_req2.png" height="400px"></img>
 
+### Acknowledgements
+
+Code from this repository should not be used for commercial purposes without consent from the author. If you wish to use code from this repository for your own platform or academic purposes, please acknowledge the source code and its origin. Thank you for your understanding.
+```
+@misc{sdattaECOMM,
+  title={superclean-ecommerce},
+  author={Datta, Siddhartha},
+  year={2020},
+  howpublished={\url{https://github.com/dattasiddhartha/fullstack-ecommerce}},
+}
+```
