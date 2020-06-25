@@ -1,6 +1,8 @@
 # SuperClean Ecommerce platform
 
-![IMG](https://raw.githubusercontent.com/dattasiddhartha/fullstack-ecommerce/master/static/images/screenshot.PNG?token=AKO4KFBAXRSP63OWIHSMRU264SEGI)
+A fullstack ecommerce web application with JavaScript frontend, interfacing with flask backend and data stored on an Oracle SQL database. 
+
+<img src="./static/images/screenshot.PNG" height="400px"></img>
 
 ### Setup instructions:
 1. Change directory into folder with main.py
@@ -40,3 +42,9 @@ python serve.py
 ```
 ngrok http 8000
 ```
+
+### Functional requirements:
+
+<img src="./static/images/fun_req1.png" height="400px"></img>
+<img src="./static/images/fun_req2.png" height="400px"></img>
+
