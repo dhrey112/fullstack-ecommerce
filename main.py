@@ -36,10 +36,10 @@ app.secret_key = 'random string' # NEEDED
 @app.route("/home", methods=["GET", "POST"])
 def root():
     global current_page # Note: need to place "global" to reference the global variable each time you wish to call its value in a function
-    
+
     try:
         loggedIn, loggedIn_employee, email, position = getLoginDetails()
-        dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+        dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
         with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
             
             searchQuery = request.args.get('searchQuery')
@@ -64,16 +64,18 @@ def root():
             if filter_NoneCheck(searchQuery) == True:
                 cur.execute('SELECT Products_ID, Products_Name, Products_Selling_Price, Products_Discounted_Price, Products_Discount, Products_Cost_Price, Products_Inventory_Quantity, Products_Description, Products_URL FROM products ORDER BY Products_ID ASC')
             else:
-                cur.execute("SELECT Products_ID, Products_Name, Products_Selling_Price, Products_Discounted_Price, Products_Discount, Products_Cost_Price, Products_Inventory_Quantity, Products_Description, Products_URL FROM products WHERE lower(Products_Name) LIKE '%" + str(searchQuery.lower()) + "%' ORDER BY Products_ID ASC ")
+                cur.execute(
+                    f"SELECT Products_ID, Products_Name, Products_Selling_Price, Products_Discounted_Price, Products_Discount, Products_Cost_Price, Products_Inventory_Quantity, Products_Description, Products_URL FROM products WHERE lower(Products_Name) LIKE '%{str(searchQuery.lower())}%' ORDER BY Products_ID ASC "
+                )
             itemData = cur.fetchall()
-            
+
 
             ## Issues with search at the moment: 
             # 1. No combobox options
             ## Resolved issues
             # 2. Case sensitive search, i.e. "Mask" != "mask" -- FIXED
             ############################
-            
+
             cur.execute("SELECT Products_ID, Products_Name, Products_Selling_Price, Products_Discounted_Price, Products_Discount, Products_Cost_Price, Products_Inventory_Quantity, Products_PromotionOrNot, Products_PromotionStartDate, Products_PromotionEndDate, Products_Description, Products_URL FROM products WHERE Products_PromotionOrNot LIKE 'Y'")
             # bug with promotion: for some reason, it still shows items that are labelled "N"
             promoData = cur.fetchall()
@@ -87,7 +89,8 @@ def root():
         # pagination - criteria: no. of rows per page
         number_of_items_per_page = 3 # number of rows
         paginate_counter=0
-        tmp=[]; itemData_paginated_reflattened=[]; 
+        tmp=[]
+        itemData_paginated_reflattened=[];
         for item in itemData:
             if paginate_counter < number_of_items_per_page:
                 tmp.append(item)
@@ -109,7 +112,7 @@ def root():
 
         try:
             return render_template('home.html', itemData=itemData_paginated_reflattened[current_page], itemData_paginated_Count=list(range(len(itemData_paginated_reflattened))), loggedIn=loggedIn, loggedIn_employee=loggedIn_employee, firstName=email, categories=categories, promoData=promoData)
-        
+
         except:
                 # Bug
                 # 1. Search is not perfect, cannot search for every type of search term in a product name
@@ -130,31 +133,33 @@ def root():
 def productDescription():
     loggedIn, loggedIn_employee, email, position = getLoginDetails()
     productId = request.args.get('productId')
-    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
     with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
         cur = conn.cursor()
-        cur.execute('SELECT Products_ID, Products_Name, Products_Selling_Price, Products_Discounted_Price, Products_Discount, Products_Cost_Price, Products_Inventory_Quantity, Products_Description, Products_URL FROM products WHERE Products_ID = ' + str(productId))
+        cur.execute(
+            f'SELECT Products_ID, Products_Name, Products_Selling_Price, Products_Discounted_Price, Products_Discount, Products_Cost_Price, Products_Inventory_Quantity, Products_Description, Products_URL FROM products WHERE Products_ID = {str(productId)}'
+        )
         productData = cur.fetchone()
-            
-    try:    
+
+    try:
         quantity_added= request.args.get('order')
-        
+
         with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
             cur = conn.cursor()
             try:
-                cur.execute("SELECT Comments_ID, Comments_Date, Comments_Text, Ratings_Value, Customer_ID_FK, Products_ID_FK FROM comments WHERE Comments_ShowOrHide <> 'hide' AND Products_ID_FK = " + str(productId))
+                cur.execute(
+                    f"SELECT Comments_ID, Comments_Date, Comments_Text, Ratings_Value, Customer_ID_FK, Products_ID_FK FROM comments WHERE Comments_ShowOrHide <> 'hide' AND Products_ID_FK = {str(productId)}"
+                )
                 commentsData = cur.fetchall()
                 commentsData = parse(commentsData)
             except:
                 flash("There was a problem posting your comment. Try making it shorter, for example.")
         try:
-            avg_rating=[]
-            for item in commentsData[0]:
-                avg_rating.append(item[3])
+            avg_rating = [item[3] for item in commentsData[0]]
             avg_rating=pd.Series(avg_rating).mean()
         except: # in case we hide the one reserve comment
             avg_rating=0
-        system_date = datetime.datetime.today().strftime('%d/%m/%Y')
+        system_date = datetime.datetime.now().strftime('%d/%m/%Y')
         #print(quantity_added)
         if filter_NoneCheck(quantity_added) == False:
             if min(float(productData[6]), max(0,float(quantity_added))) != float(quantity_added):
@@ -171,52 +176,68 @@ def productDescription():
 
 
 def AddToShoppingCart(email, productId, quantity_added):
-    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
     with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
         cur = conn.cursor()
-        cur.execute("SELECT Customer_ID from customers WHERE Customer_Email = '"+str(email)+"'" ) #use email to find the customer ID
+        cur.execute(
+            f"SELECT Customer_ID from customers WHERE Customer_Email = '{str(email)}'"
+        )
         find_CusID=cur.fetchall()[0][0]
-        
+
     # Unit Test 1: Existing Order
     # find_CusID
     # Unit Tesr 2: No Existing Order
     #find_CusID = -1
 
-    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
     with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
         cur = conn.cursor()
         try:
-          # Existing order
-          Old_Orders_ID=cur.execute("SELECT Orders_ID from orders Where Orders_Status= 'unpaid' AND Customer_ID_FK = '" +str(find_CusID)+"'").fetchall()[0][0]
+                      # Existing order
+            Old_Orders_ID = cur.execute(
+                f"SELECT Orders_ID from orders Where Orders_Status= 'unpaid' AND Customer_ID_FK = '{str(find_CusID)}'"
+            ).fetchall()[0][0]
         except:
-          # Non-existing order
-          Old_Orders_ID=cur.execute("SELECT Orders_ID from orders Where Orders_Status= 'unpaid' AND Customer_ID_FK = '" +str(find_CusID)+"'").fetchall()
-          
+                      # Non-existing order
+            Old_Orders_ID = cur.execute(
+                f"SELECT Orders_ID from orders Where Orders_Status= 'unpaid' AND Customer_ID_FK = '{str(find_CusID)}'"
+            ).fetchall()
+                      
 
-    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
     with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
         cur = conn.cursor()
-    
-        Order_Items_Unit_Price=cur.execute("SELECT Products_Selling_Price from products where Products_ID = '"+str(productId)+"' ").fetchall()[0][0]
-        
-        Order_Items_Discount=cur.execute("SELECT Products_Discount from products where Products_ID = '"+str(productId)+"' ").fetchall()[0][0]
-        
+
+        Order_Items_Unit_Price = cur.execute(
+            f"SELECT Products_Selling_Price from products where Products_ID = '{str(productId)}' "
+        ).fetchall()[0][0]
+
+        Order_Items_Discount = cur.execute(
+            f"SELECT Products_Discount from products where Products_ID = '{str(productId)}' "
+        ).fetchall()[0][0]
+
         Order_Items_Time_Stamp= cur.execute("SELECT Sysdate AS System_date FROM Dual").fetchall()[0][0]
-        
+
         Order_Items_ID=CreateNewOrders_ID(20, "ABCDEFHIJK1234567890")
 
         # Ordering data for the purpose of displaying on the Shopping Cart; requires reconfirmation at Shopping Cart page
         # Orders_Price factors in (1) Discount, (2) product quantity; does not factor in (1) Sales tax
         if Old_Orders_ID == []:
             New_OrderID = CreateNewOrders_ID(8, "ABCDEF135790") #generate new Orders_id
-            cur.execute("INSERT INTO orders VALUES( '"+str(New_OrderID)+"', '"+str(0)+"', sysdate, '"+str(100)+"', sysdate+15, 'unpaid', '"+str(find_CusID)+"', '"+str(1)+"')")
-            command = "INSERT INTO order_items VALUES('"+str(Order_Items_ID)+"', "+str(quantity_added)+", "+str(Order_Items_Unit_Price)+","+str(Order_Items_Discount)+", 0.16, TO_DATE('"+str(Order_Items_Time_Stamp)+"', 'YYYY-MM-DD HH24:MI:SS'), 'added to cart', '"+str(New_OrderID)+"', '"+str(productId)+"')"
+            cur.execute(
+                f"INSERT INTO orders VALUES( '{str(New_OrderID)}', '0', sysdate, '100', sysdate+15, 'unpaid', '{str(find_CusID)}', '1')"
+            )
+            command = f"INSERT INTO order_items VALUES('{str(Order_Items_ID)}', {str(quantity_added)}, {str(Order_Items_Unit_Price)},{str(Order_Items_Discount)}, 0.16, TO_DATE('{str(Order_Items_Time_Stamp)}', 'YYYY-MM-DD HH24:MI:SS'), 'added to cart', '{str(New_OrderID)}', '{str(productId)}')"
             cur.execute(command)
-            cur.execute("UPDATE orders SET Orders_Price = Orders_Price + " + str(float(quantity_added)*float(Order_Items_Unit_Price)*(1-float(Order_Items_Discount))) + " WHERE Orders_ID = '" + str(New_OrderID) + "'")
-        elif Old_Orders_ID != []:
-            command = "INSERT INTO order_items VALUES('"+str(Order_Items_ID)+"', "+str(quantity_added)+", "+str(Order_Items_Unit_Price)+", "+str(Order_Items_Discount)+", 0.16, TO_DATE('"+str(Order_Items_Time_Stamp)+"', 'YYYY-MM-DD HH24:MI:SS'), 'added to cart', '"+str(Old_Orders_ID)+"', '"+str(productId)+"')"
+            cur.execute(
+                f"UPDATE orders SET Orders_Price = Orders_Price + {str(float(quantity_added) * float(Order_Items_Unit_Price) * (1 - float(Order_Items_Discount)))} WHERE Orders_ID = '{str(New_OrderID)}'"
+            )
+        else:
+            command = f"INSERT INTO order_items VALUES('{str(Order_Items_ID)}', {str(quantity_added)}, {str(Order_Items_Unit_Price)}, {str(Order_Items_Discount)}, 0.16, TO_DATE('{str(Order_Items_Time_Stamp)}', 'YYYY-MM-DD HH24:MI:SS'), 'added to cart', '{str(Old_Orders_ID)}', '{str(productId)}')"
             cur.execute(command)
-            cur.execute("UPDATE orders SET Orders_Price = Orders_Price + " + str(float(quantity_added)*float(Order_Items_Unit_Price)*(1-float(Order_Items_Discount))) + " WHERE Orders_ID = '" + str(Old_Orders_ID) + "'")
+            cur.execute(
+                f"UPDATE orders SET Orders_Price = Orders_Price + {str(float(quantity_added) * float(Order_Items_Unit_Price) * (1 - float(Order_Items_Discount)))} WHERE Orders_ID = '{str(Old_Orders_ID)}'"
+            )
         cur.execute("commit")
 
         # allow customers to enter 0 quantity too, in case they wish to have placeholder items in cart?
@@ -287,26 +308,28 @@ def logout():
     return redirect(url_for('root'))
 
 def is_valid(email, password):
-    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
     conn = cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns)
     cur = conn.cursor()
     cur.execute('SELECT Customer_Password, Customer_Email FROM customers')
     data = cur.fetchall()
-    for row in data:
-        if row[1] == email and row[0] == hashlib.md5(password.encode()).hexdigest():
-            return True
-    return False
+    return any(
+        row[1] == email
+        and row[0] == hashlib.md5(password.encode()).hexdigest()
+        for row in data
+    )
 
 def is_valid_employee(email, password):
-    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
     conn = cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns)
     cur = conn.cursor()
     cur.execute('SELECT Employees_Password, Employees_Email FROM employees')
     data = cur.fetchall()
-    for row in data:
-        if row[1] == email and row[0] == hashlib.md5(password.encode()).hexdigest():
-            return True
-    return False
+    return any(
+        row[1] == email
+        and row[0] == hashlib.md5(password.encode()).hexdigest()
+        for row in data
+    )
 
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
@@ -320,21 +343,25 @@ def register():
             address = request.form['address']
             usrname = request.form['usrname']
             phoneNum = request.form['phoneNum']
-        
+
             # Check if any row in customers table with the same email value
 
             dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
             with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
-                cur = conn.cursor() 
-                cur.execute("SELECT Customer_Email FROM customers WHERE Customer_Email = '"+str(email)+"'")
-                uservalidation = cur.fetchall() 
+                cur = conn.cursor()
+                cur.execute(
+                    f"SELECT Customer_Email FROM customers WHERE Customer_Email = '{str(email)}'"
+                )
+                uservalidation = cur.fetchall()
             uservalidation= parse(uservalidation)
             with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
                 cur = conn.cursor()
                 if uservalidation ==[] or uservalidation is None or uservalidation=="":
-                    cur.execute("INSERT INTO customers (Customer_ID, Customer_FName, Customer_LName, Customer_Address, Customer_Email, Customer_Username, Customer_Password, Customer_Phone_Number) VALUES ('"+str(int(random.uniform(1,1000000)))+"', '"+str(fname)+"', '"+str(lname)+"', '"+str(address)+"', '"+str(email)+"', '"+str(usrname)+"', '"+str(hashlib.md5(password.encode()).hexdigest())+"', '"+str(phoneNum)+"')")
+                    cur.execute(
+                        f"INSERT INTO customers (Customer_ID, Customer_FName, Customer_LName, Customer_Address, Customer_Email, Customer_Username, Customer_Password, Customer_Phone_Number) VALUES ('{int(random.uniform(1, 1000000))}', '{str(fname)}', '{str(lname)}', '{str(address)}', '{str(email)}', '{str(usrname)}', '{hashlib.md5(password.encode()).hexdigest()}', '{str(phoneNum)}')"
+                    )
                     conn.commit()
-                    msg = "Registered Successfully"    
+                    msg = "Registered Successfully"
                 else:
                     msg = "email already in use"
             return render_template("login.html", error=msg)
@@ -354,21 +381,25 @@ def employeeRegister():
             position = request.form['position']
             usrname = request.form['usrname']
             phoneNum = request.form['phoneNum']
-        
-            dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+
+            dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
             #Check if email is in database
             with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
-                cur = conn.cursor() 
-                cur.execute("SELECT Employees_Email FROM employees WHERE Employees_Email = '"+str(email)+"'")
-                uservalidation = cur.fetchall() 
+                cur = conn.cursor()
+                cur.execute(
+                    f"SELECT Employees_Email FROM employees WHERE Employees_Email = '{str(email)}'"
+                )
+                uservalidation = cur.fetchall()
             uservalidation= parse(uservalidation)
-        
+
             with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
                 cur = conn.cursor()
                 if uservalidation ==[] or uservalidation is None or uservalidation=="":
-                    cur.execute("INSERT INTO employees (Employees_ID, Employees_FName, Empolyees_LName, Empolyees_Username, Employees_Password, Employees_Email, Employees_Position, Employees_Phone_Number) VALUES ('"+str(int(random.uniform(1,1000000)))+"', '"+str(fname)+"', '"+str(lname)+"', '"+str(usrname)+"', '"+str(hashlib.md5(password.encode()).hexdigest())+"', '"+str(email)+"', '"+str(position)+"', '"+str(phoneNum)+"')")
+                    cur.execute(
+                        f"INSERT INTO employees (Employees_ID, Employees_FName, Empolyees_LName, Empolyees_Username, Employees_Password, Employees_Email, Employees_Position, Employees_Phone_Number) VALUES ('{int(random.uniform(1, 1000000))}', '{str(fname)}', '{str(lname)}', '{str(usrname)}', '{hashlib.md5(password.encode()).hexdigest()}', '{str(email)}', '{str(position)}', '{str(phoneNum)}')"
+                    )
                     conn.commit()
-                    msg = "Registered Successfully"    
+                    msg = "Registered Successfully"
                 else:
                     msg = "email already in use"
 
@@ -387,41 +418,50 @@ def employeeregisterationForm():
 
 @app.route("/changePassword", methods=["GET", "POST"])
 def changePassword():
-    if request.method == "POST":
-        # assume no emal verification needed
-        email = request.form['email']
-        # ask user for new password
-        newPassword = request.form['newpassword']
-        newPassword = hashlib.md5(newPassword.encode()).hexdigest()
+    if request.method != "POST":
+        return render_template("changePassword.html")
+    # assume no emal verification needed
+    email = request.form['email']
+    # ask user for new password
+    newPassword = request.form['newpassword']
+    newPassword = hashlib.md5(newPassword.encode()).hexdigest()
 
-        dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
         #Check if email is in database
-        with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
-            cur = conn.cursor() 
-            cur.execute("SELECT Customer_Email FROM customers WHERE Customer_Email = '"+str(email)+"'")
-            uservalidation = cur.fetchall() 
-        uservalidation= parse(uservalidation)
+    with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT Customer_Email FROM customers WHERE Customer_Email = '{str(email)}'"
+        )
+        uservalidation = cur.fetchall()
+    uservalidation= parse(uservalidation)
 
-        # update db with new password, search by email
-        dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME) 
-        with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
-            cur = conn.cursor()
-            try:
-                if uservalidation !=[] and newPassword != "":
-                    print("UPDATE customers SET Customer_Password = '" + newPassword + "' WHERE Customer_Email = '" + email + "'")
-                    cur.execute("UPDATE customers SET Customer_Password = '" + newPassword + "' WHERE Customer_Email = '" + email + "'")
-                    #cur.execute("UPDATE customers SET Customer_Password = ? WHERE Customer_Email = ?", (newPassword, email))
-                    conn.commit()
-                    msg="Changed successfully (auto-verified)"
-                else:
-                    conn.rollback()
-                    msg = "Failed, either email does not exist or password was empty"
-            except:
+    # update db with new password, search by email
+    dsn_tns = cx_Oracle.makedsn(HOST_NAME, PORT_NUMBER, service_name=SERVICE_NAME)
+    with cx_Oracle.connect(user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
+        cur = conn.cursor()
+        try:
+            if uservalidation !=[] and newPassword != "":
+                print(
+                    f"UPDATE customers SET Customer_Password = '{newPassword}' WHERE Customer_Email = '"
+                    + email
+                    + "'"
+                )
+                cur.execute(
+                    f"UPDATE customers SET Customer_Password = '{newPassword}' WHERE Customer_Email = '"
+                    + email
+                    + "'"
+                )
+                #cur.execute("UPDATE customers SET Customer_Password = ? WHERE Customer_Email = ?", (newPassword, email))
+                conn.commit()
+                msg="Changed successfully (auto-verified)"
+            else:
                 conn.rollback()
                 msg = "Failed, either email does not exist or password was empty"
-            return render_template("changePassword.html", msg=msg)
-    else:
-        return render_template("changePassword.html")
+        except:
+            conn.rollback()
+            msg = "Failed, either email does not exist or password was empty"
+        return render_template("changePassword.html", msg=msg)
 
 
 
@@ -431,9 +471,11 @@ def profile():
 
     loggedIn, loggedIn_employee, email, position = getLoginDetails()
     with cx_Oracle.connect (user=USERNAME, password=PASSWORD, dsn=dsn_tns) as conn:
-    	cursor = conn.cursor()
-    	cursor.execute("SELECT * FROM customers where Customer_Email = '"+str(email)+"'")
-    	CustomerData = cursor.fetchall()
+        cursor = conn.cursor()
+        cursor.execute(
+            f"SELECT * FROM customers where Customer_Email = '{str(email)}'"
+        )
+        CustomerData = cursor.fetchall()
     CustomerData = parse(CustomerData)
     return render_template("updateCustomerInfo.html", loggedIn=loggedIn, loggedIn_employee=loggedIn_employee, firstName=email, customerData=CustomerData)
 
