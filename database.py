@@ -368,7 +368,7 @@ def clean_string(string):
         desc = str(string.encode('utf-8'))
     except:
         desc = str(string)
-    for i in range(10):
+    for _ in range(10):
         try:
             desc = desc.replace("'", "")
         except:
@@ -386,32 +386,88 @@ id_num = 0 # id number must be unique
 # insert masks
 mask_prods = pd.read_csv("data/mask_data.csv")
 for index, row in mask_prods.iterrows():
-    id = str(id_num); id_num+=1
+    id = str(id_num)
+    id_num+=1
     name = clean_string(row['name'])
     discount = 0.1
-    selling_price_flt = random.uniform(1,100); selling_price_str = str(selling_price_flt)
-    discount_price_flt = selling_price_flt*(1-discount); discount_price_str = str(discount_price_flt)
-    cost_price_flt = selling_price_flt*0.65; cost_price_str = str(cost_price_flt)
+    selling_price_flt = random.uniform(1,100)
+    selling_price_str = str(selling_price_flt)
+    discount_price_flt = selling_price_flt*(1-discount)
+    discount_price_str = str(discount_price_flt)
+    cost_price_flt = selling_price_flt*0.65
+    cost_price_str = str(cost_price_flt)
     invQ = str(random.uniform(0,1000))
     desc = clean_string(row['description'])
     url = row['imgurl']
-    string = "INSERT INTO products VALUES ('"+id+"', '"+name[1:]+"', '"+selling_price_str+"', '"+discount_price_str+"', '" + str(discount) + "', '"+cost_price_str+"', '"+invQ+"', '"+ "N"+"', " +"sysdate"+", "+"sysdate"+", '"+desc.replace("\t", "")+"', '"+url+"')"
+    string = (
+        f"INSERT INTO products VALUES ('{id}', '"
+        + name[1:]
+        + "', '"
+        + selling_price_str
+        + "', '"
+        + discount_price_str
+        + "', '"
+        + str(discount)
+        + "', '"
+        + cost_price_str
+        + "', '"
+        + invQ
+        + "', '"
+        + "N"
+        + "', "
+        + "sysdate"
+        + ", "
+        + "sysdate"
+        + ", '"
+        + desc.replace("\t", "")
+        + "', '"
+        + url
+        + "')"
+    )
     c.execute(string)
     c.execute("commit")
 
 # insert hand sanitzers
 hand_prods = pd.read_csv("data/handsant_data.csv")
+discount = 0.1
 for index, row in hand_prods.iterrows():
-    id = str(id_num); id_num+=1
+    id = str(id_num)
+    id_num+=1
     name = clean_string(row['name'])
-    discount = 0.1
-    selling_price_flt = random.uniform(1,100); selling_price_str = str(selling_price_flt)
-    discount_price_flt = selling_price_flt*(1-discount); discount_price_str = str(discount_price_flt)
-    cost_price_flt = selling_price_flt*0.65; cost_price_str = str(cost_price_flt)
+    selling_price_flt = random.uniform(1,100)
+    selling_price_str = str(selling_price_flt)
+    discount_price_flt = selling_price_flt*(1-discount)
+    discount_price_str = str(discount_price_flt)
+    cost_price_flt = selling_price_flt*0.65
+    cost_price_str = str(cost_price_flt)
     invQ = str(random.uniform(0,1000))
     desc = clean_string(row['description'])
     url = row['imgurl']
-    string = "INSERT INTO products VALUES ('"+id+"', '"+name[1:]+"', '"+selling_price_str+"', '"+discount_price_str+"', '" + str(discount) + "', '"+cost_price_str+"', '"+invQ+"', '"+ "N"+"', " +"sysdate"+", "+"sysdate"+", '"+desc.replace("\t", "")+"', '"+url+"')"
+    string = (
+        f"INSERT INTO products VALUES ('{id}', '"
+        + name[1:]
+        + "', '"
+        + selling_price_str
+        + "', '"
+        + discount_price_str
+        + "', '"
+        + str(discount)
+        + "', '"
+        + cost_price_str
+        + "', '"
+        + invQ
+        + "', '"
+        + "N"
+        + "', "
+        + "sysdate"
+        + ", "
+        + "sysdate"
+        + ", '"
+        + desc.replace("\t", "")
+        + "', '"
+        + url
+        + "')"
+    )
     c.execute(string)
     c.execute("commit")
 
@@ -423,7 +479,9 @@ row = c.fetchone()
 insert_commands=[]
 while row is not None:
     product_id = int(row[0])
-    insert_commands.append("""INSERT INTO comments VALUES ('""" + str(index) + """', sysdate, 'Add a comment with the + icon', '5', '1', '""" + str(product_id) + """', 'show')""")
+    insert_commands.append(
+        f"""INSERT INTO comments VALUES ('{str(index)}', sysdate, 'Add a comment with the + icon', '5', '1', '{product_id}', 'show')"""
+    )
     # SPECIAL NOTE: THERE SHOULD BE NO QUOTATION MARKS AROUND SYSDATE
     index+=1
     row = c.fetchone()
@@ -454,7 +512,7 @@ print("Tables filled")
 #* We assume promotions can last at most 2 weeks only, so the startdate is autoset to sysdate, and enddate is just sysdate+2wks
 
 #/* test first: For UI, we need a scrolling bar at top of page to show all products+imgs of those items in promotion [https://www.w3schools.com/w3css/w3css_slideshow.asp]
-    
+
 
 c.execute(
         """
@@ -465,12 +523,12 @@ c.execute(
         """
     insert into employees values ('2', 'sidddu', 'ddatta', 'siduddatta', 'ilovesidd', 'sidddu@sid.com', 'cio', 12452678)    
     """)
-    
+
 c.execute(
         """
     insert into employees values ('3', 'siddduu', 'ddattta', 'siduuddatta', 'ilooovesidd', 'siddduuu@sid.com', 'coo', 13452678)    
     """)
-    
+
 
 
 # fake orders data -- FOR DEBUGGING PURPOSES ONLY -- WARNING: initializing shopping cart upon database creation means customer has orders before even adding to cart
@@ -478,12 +536,12 @@ c.execute(
 #        """
 #    insert into orders values ('1', 1.2, sysdate, 1, sysdate, 'unpaid', '1', '1')    
 #    """)
-    
+
 #c.execute(
 #        """
 #        insert into orders values ('2', 1.4, sysdate, 9, sysdate, 'completed', '1', '2')            
 #    """)
-    
+
 #c.execute(
 #        """
 #    insert into orders values ('3', 1.7, sysdate, 9, sysdate, 'completed', '1', '3')    
@@ -493,12 +551,12 @@ c.execute(
 #        """
 #    insert into orders values ('4', 1.2, sysdate-1, 1, sysdate-1, 'completed', '1', '1')    
 #    """)
-    
+
 #c.execute(
 #        """
 #        insert into orders values ('5', 1.4, sysdate-1, 9, sysdate-1, 'completed', '1', '2')            
 #    """)
-    
+
 #c.execute(
 #        """
 #    insert into orders values ('6', 1.7, sysdate-1, 9, sysdate-1, 'completed', '1', '3')    
@@ -508,12 +566,12 @@ c.execute(
 #        """
 #    insert into orders values ('7', 1.2, sysdate-31, 1, sysdate-31, 'completed', '1', '1')    
 #    """)
-    
+
 #c.execute(
 #        """
 #        insert into orders values ('8', 1.4, sysdate-31, 9, sysdate-31, 'completed', '1', '2')            
 #    """)
-    
+
 #c.execute(
 #        """
 #    insert into orders values ('9', 1.7, sysdate-31, 9, sysdate-31, 'completed', '1', '3')    
@@ -523,12 +581,12 @@ c.execute(
 #        """
 #    insert into orders values ('10', 1.2, sysdate-365, 1, sysdate-365, 'completed', '1', '1')    
 #    """)
-    
+
 #c.execute(
 #        """
 #        insert into orders values ('11', 1.4, sysdate-365, 9, sysdate-365, 'delivery', '1', '2')            
 #    """)
-    
+
 #c.execute(
 #        """
 #    insert into orders values ('12', 1.7, sysdate-365, 9, sysdate-365, 'delivery', '1', '3')    
@@ -538,12 +596,12 @@ c.execute(
 #        """
 #    insert into orders values ('13', 1.2, sysdate-365, 1, sysdate-365, 'delivery', '1', '1')    
 #    """)
-    
+
 #c.execute(
 #        """
 #        insert into orders values ('14', 1.4, sysdate-1000, 9, sysdate-1000, 'delivery', '1', '2')            
 #    """)
-    
+
 #c.execute(
 #        """
 #    insert into orders values ('15', 1.7, sysdate-1000, 9, sysdate-1000, 'delivery', '1', '3')    
